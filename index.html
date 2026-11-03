@@ -53,6 +53,19 @@ button{cursor:pointer;border:0;border-radius:12px;padding:11px 15px;font-weight:
 @media(max-width:390px){.fitting-stage{height:420px}.man-torso{width:139px}.man-legs{width:116px}.fit-top{width:63%}.fit-bottom{width:58%}}
 
 #threeStage{position:absolute;inset:0;width:100%;height:100%;touch-action:pan-y}#threeStage canvas{display:block;width:100%;height:100%;touch-action:pan-y}.fit-controls{display:flex;justify-content:center;gap:8px;margin-top:10px;flex-wrap:wrap}.fit-controls button{padding:9px 13px}
+
+/* Montagem plana do look: fotos reais empilhadas por categoria */
+.outfit-board{background:linear-gradient(150deg,#fff,#f2f3fb);border:1px solid #e1e5f2;border-radius:18px;padding:14px;display:flex;flex-direction:column;align-items:center;gap:9px;min-height:390px}
+.outfit-slot{width:100%;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#fff;border:1px solid #e7eaf4;border-radius:14px;overflow:hidden;padding:8px}
+.outfit-slot>span,.extra-slot>span{font-size:10px;letter-spacing:1px;font-weight:850;color:#8790aa;align-self:flex-start;padding:3px 6px}
+.outfit-top{height:180px}.outfit-bottom{height:180px}
+.outfit-slot img{display:none;width:100%;height:145px;object-fit:contain;mix-blend-mode:multiply}
+.outfit-slot b,.extra-slot b{font-size:11px;color:#a0a7b9;font-weight:600}
+.outfit-divider{width:68%;height:2px;background:linear-gradient(90deg,transparent,#b8bfe0,transparent)}
+.outfit-extras{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.extra-slot{min-height:110px;background:#fff;border:1px solid #e7eaf4;border-radius:13px;padding:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
+.extra-slot img{display:none;max-width:100%;width:100%;height:75px;object-fit:contain;mix-blend-mode:multiply}
+.extra-pics{display:flex;width:100%;justify-content:space-around;align-items:center}.extra-pics img{width:48%;}
 </style>
 </head>
 <body>
@@ -67,7 +80,7 @@ button{cursor:pointer;border:0;border-radius:12px;padding:11px 15px;font-weight:
 <div class="empty" id="empty"><div class="emoji">👕</div><strong>Seu closet começa aqui</strong><p>Adicione fotos da galeria ou tire uma foto.</p><button class="primary" id="emptyAdd">＋ Adicionar primeira peça</button></div>
 </section>
 <section id="looksSection" hidden>
-<h2>Montar combinação</h2><p class="hint">Escolha peças do seu guarda-roupa.</p><div class="fitting-panel"><div class="fitting-head"><strong>🧍 Provador 3D</strong><span class="detail">Prévia automática</span></div><div class="fitting-stage" id="fittingStage"><div id="threeStage" aria-label="Manequim 3D interativo"></div><div id="fitEmpty" class="fit-empty">Selecione suas peças para vestir o manequim</div></div><div class="fit-controls"><button type="button" id="turnLeft" class="secondary">↶ Girar</button><button type="button" id="turnRight" class="secondary">Girar ↷</button><button type="button" id="resetView" class="plain">Frente</button></div><p class="fit-caption">Manequim 3D interativo. Arraste para girar e use os botões para mudar o ângulo.</p><p class="fit-tip">As roupas aparecem como peças 3D coloridas conforme a cor cadastrada. O encaixe de fotos reais sobre o corpo exige recorte automático das imagens, uma etapa futura.</p></div>
+<h2>Montar combinação</h2><p class="hint">Escolha peças do seu guarda-roupa.</p><div class="fitting-panel"><div class="fitting-head"><strong>✨ Montagem do look</strong><span class="detail">Peças em sequência</span></div><div class="outfit-board"><div class="outfit-slot outfit-top"><span>PARTE DE CIMA</span><img id="previewTop" alt="Camisa ou camiseta"><b id="emptyTop">Escolha uma camisa</b></div><div class="outfit-divider"></div><div class="outfit-slot outfit-bottom"><span>PARTE DE BAIXO</span><img id="previewBottom" alt="Calça ou bermuda"><b id="emptyBottom">Escolha uma calça</b></div><div class="outfit-extras"><div class="extra-slot"><span>CALÇADO</span><img id="previewShoe" alt="Calçado"><b id="emptyShoe">—</b></div><div class="extra-slot"><span>ACESSÓRIOS</span><div class="extra-pics"><img id="previewTie" alt="Gravata"><img id="previewBelt" alt="Cinto"></div><b id="emptyExtras">Opcionais</b></div></div></div><p class="fit-caption">As fotos reais do seu guarda-roupa aparecem organizadas: camisa em cima, calça embaixo e complementos no final.</p></div>
 <div class="panel">
 <div class="field"><label>Nome do look (opcional)</label><input id="lookName" placeholder="Ex.: Casual de sábado"></div>
 <div class="row"><div class="field"><label>Parte de cima</label><select id="top"><option value="">Selecionar</option></select></div><div class="field"><label>Parte de baixo</label><select id="bottom"><option value="">Selecionar</option></select></div></div>
@@ -107,7 +120,7 @@ $('saveItems').onclick=async()=>{if(!pending.length)return;const cat=$('newCateg
 $('filter').onchange=render;
 function fillLookSelects(){const groups={top:['Camisa','Camiseta','Jaqueta'],bottom:['Calça','Bermuda'],shoe:['Sapato','Tênis'],tie:['Gravata'],belt:['Cinto']};Object.entries(groups).forEach(([id,cats])=>{const el=$(id),old=el.value,first=id==='tie'?'Sem gravata':id==='belt'?'Sem cinto':'Selecionar';el.innerHTML='<option value="">'+first+'</option>'+clothes.filter(x=>cats.includes(x.cat)).map(x=>'<option value="'+x.id+'">'+esc(x.name)+(x.color?' · '+esc(x.color):'')+'</option>').join('');el.value=old})}
 $('saveLook').onclick=async()=>{const ids=['top','bottom','shoe','tie','belt'].map(id=>$(id).value).filter(Boolean);const valid=(id,cats)=>ids.some(k=>clothes.some(x=>x.id===k&&cats.includes(x.cat)));if(!valid('top',['Camisa','Camiseta','Jaqueta'])||!valid('bottom',['Calça','Bermuda'])||!valid('shoe',['Sapato','Tênis'])){alert('Escolha uma parte de cima, uma parte de baixo e um calçado.');return}looks.unshift({id:Date.now().toString(36),name:$('lookName').value.trim()||'Look '+(looks.length+1),ids});await persist();$('lookName').value='';['top','bottom','shoe','tie','belt'].forEach(id=>$(id).value='');renderLooks()};
-function updateFitting(){const ids=['top','bottom','shoe','tie','belt'];const selected={};ids.forEach(id=>{selected[id]=clothes.find(x=>x.id===$(id).value)||null});const count=Object.values(selected).filter(Boolean).length;$('fitEmpty').style.display=count?'none':'block';window.dispatchEvent(new CustomEvent('closet-outfit-change',{detail:selected}))}
+function updateFitting(){const map={top:['previewTop','emptyTop'],bottom:['previewBottom','emptyBottom'],shoe:['previewShoe','emptyShoe'],tie:['previewTie','emptyExtras'],belt:['previewBelt','emptyExtras']};Object.entries(map).forEach(([id,targets])=>{const item=clothes.find(x=>x.id===$(id).value);const img=$(targets[0]);if(item){img.src=item.src;img.style.display='block'}else{img.removeAttribute('src');img.style.display='none'}if(id!=='belt'&&id!=='tie')$(targets[1]).style.display=item?'none':'block'});const extras=!!$('tie').value||!!$('belt').value;$('emptyExtras').style.display=extras?'none':'block'}
 function renderHome(){$('homePieces').textContent=clothes.length;$('homeLooks').textContent=looks.length;$('homeEvents').textContent=events.length;$('homeCats').textContent=new Set(clothes.map(x=>x.cat)).size;const upcoming=[...events].filter(e=>e.date>=new Date().toISOString().slice(0,10)).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,3);$('homeUpcoming').innerHTML=upcoming.length?upcoming.map(e=>'<div class="event"><div class="date-badge">'+formatDate(e.date)+'</div><strong>'+esc(e.title)+'</strong><div class="detail">'+esc(lookName(e.lookId))+'</div></div>').join(''):'<div class="empty">Nenhum compromisso planejado por enquanto.</div>'}
 function formatDate(d){if(!d)return '';const [y,m,day]=d.split('-');return day+'/'+m+'/'+y}
 function lookName(id){return looks.find(l=>l.id===id)?.name||'Sem look definido'}
@@ -123,38 +136,5 @@ fillCats();updateFitting();load();
 if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(e=>console.log('SW',e)))}
 </script>
 
-<script type="module">
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js';
-const host=document.getElementById('threeStage');
-if(host){
- let scene,camera,renderer,model,shirt,pants,tie,belt,shoeL,shoeR,rotation=0,drag=false,lastX=0;
- const mat=(color,rough=.78)=>new THREE.MeshStandardMaterial({color,roughness:rough,metalness:.02});
- const skin=mat('#d5c8bd'),shirtMat=mat('#d5d9e3'),pantsMat=mat('#d5d9e3'),shoeMat=mat('#aeb7c8'),accessoryMat=mat('#aeb7c8'),bodyMat=mat('#d9dce5');
- function capsule(parent,r,len,material,pos,scale){const m=new THREE.Mesh(new THREE.CapsuleGeometry(r,len,6,12),material);m.position.set(...pos);if(scale)m.scale.set(...scale);parent.add(m);return m}
- function limb(parent,a,b,r1,r2,material){const A=new THREE.Vector3(...a),B=new THREE.Vector3(...b),d=new THREE.Vector3().subVectors(B,A);const m=new THREE.Mesh(new THREE.CylinderGeometry(r2,r1,d.length(),16,1),material);m.position.copy(A).add(B).multiplyScalar(.5);m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());parent.add(m);return m}
- function build(){scene=new THREE.Scene();scene.background=new THREE.Color('#edf0fa');camera=new THREE.PerspectiveCamera(34,1,.1,100);camera.position.set(0,.05,12.2);camera.lookAt(0,-.02,0);renderer=new THREE.WebGLRenderer({antialias:true,alpha:false});renderer.setPixelRatio(Math.min(devicePixelRatio,1.8));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.shadowMap.enabled=true;host.appendChild(renderer.domElement);scene.add(new THREE.HemisphereLight(0xffffff,0x9aa5c4,2));const key=new THREE.DirectionalLight(0xffffff,2.4);key.position.set(3,5,6);key.castShadow=true;scene.add(key);const fill=new THREE.DirectionalLight(0x9eafff,1.1);fill.position.set(-4,2,-3);scene.add(fill);
- const floor=new THREE.Mesh(new THREE.CylinderGeometry(1.35,1.35,.12,64),mat('#c9cfea'));floor.position.y=-2.05;floor.receiveShadow=true;scene.add(floor);const ring=new THREE.Mesh(new THREE.TorusGeometry(1.27,.025,8,80),new THREE.MeshStandardMaterial({color:'#8b5cf6',emissive:'#4b238f',emissiveIntensity:.45}));ring.rotation.x=Math.PI/2;ring.position.y=-1.97;scene.add(ring);
- model=new THREE.Group();scene.add(model);
- // Proportioned, sculpted mannequin body.
- const head=new THREE.Mesh(new THREE.SphereGeometry(.34,32,24),skin);head.scale.set(.82,1.13,.86);head.position.y=1.72;model.add(head);
- capsule(model,.13,.22,skin,[0,1.32,0],[1,1,1]);
- const torso=new THREE.Mesh(new THREE.CapsuleGeometry(.48,.72,8,24),bodyMat);torso.scale.set(1.05,1,.62);torso.position.y=.66;model.add(torso);
- limb(model,[-.48,1.0,0],[-.72,-.05,0],.16,.12,bodyMat);limb(model,[.48,1.0,0],[.72,-.05,0],.16,.12,bodyMat);
- limb(model,[-.24,.0,0],[-.27,-1.48,0],.22,.13,bodyMat);limb(model,[.24,.0,0],[.27,-1.48,0],.22,.13,bodyMat);
- shoeL=capsule(model,.16,.34,shoeMat,[-.27,-1.78,.12],[1.25,.55,1.8]);shoeR=capsule(model,.16,.34,shoeMat,[.27,-1.78,.12],[1.25,.55,1.8]);
- shirt=new THREE.Mesh(new THREE.CapsuleGeometry(.49,.7,8,24),shirtMat);shirt.scale.set(1.08,1,.66);shirt.position.y=.79;model.add(shirt);
- const sleeve1=limb(model,[-.48,1.08,0],[-.72,.08,0],.145,.105,shirtMat),sleeve2=limb(model,[.48,1.08,0],[.72,.08,0],.145,.105,shirtMat);
- pants=new THREE.Group();model.add(pants);const leg1=new THREE.Mesh(new THREE.CylinderGeometry(.16,.105,1.62,24),pantsMat);leg1.position.set(-.27,-.78,.025);pants.add(leg1);const leg2=leg1.clone();leg2.position.x=.27;pants.add(leg2);const waist=new THREE.Mesh(new THREE.CylinderGeometry(.37,.38,.34,24),pantsMat);waist.position.y=-.08;pants.add(waist);
- belt=new THREE.Mesh(new THREE.TorusGeometry(.345,.035,8,40),accessoryMat);belt.rotation.x=Math.PI/2;belt.position.y=-.025;model.add(belt);
- tie=new THREE.Mesh(new THREE.ConeGeometry(.09,.72,4),accessoryMat);tie.position.set(0,.72,.32);tie.rotation.x=Math.PI;model.add(tie);
- // footwear references were assigned when the shoes were created.
- model.position.y=.05;
- }
- function colorFor(item,fallback){if(!item)return fallback;const c=(item.color||item.name||'').toLowerCase();const map=[['preto','#20232b'],['black','#20232b'],['branco','#f2f2ee'],['white','#f2f2ee'],['azul','#254c89'],['marinho','#17284c'],['cinza','#777d89'],['grafite','#424750'],['bege','#c6ad8a'],['caqui','#9b916c'],['marrom','#68442f'],['caramelo','#a76d3d'],['vermelho','#a72f3c'],['vinho','#65263b'],['rosa','#d58da4'],['verde','#42664c'],['amarelo','#d2ad36'],['roxo','#76519a'],['laranja','#d17a36']];for(const [k,v] of map)if(c.includes(k))return v;return fallback}
- function apply(data){if(!model)return;shirt.material.color.set(data.top?colorFor(data.top,'#d5d9e3'):'#d5d9e3');pants.children.forEach(o=>{if(o.material)o.material.color.set(data.bottom?colorFor(data.bottom,'#d5d9e3'):'#d5d9e3')});belt.material.color.set(data.belt?colorFor(data.belt,'#aeb7c8'):'#aeb7c8');tie.material.color.set(data.tie?colorFor(data.tie,'#aeb7c8'):'#aeb7c8');const shoeColor=data.shoe?colorFor(data.shoe,'#aeb7c8'):'#aeb7c8';shoeL.material.color.set(shoeColor);shoeR.material.color.set(shoeColor)}
- function resize(){if(!renderer)return;const w=host.clientWidth,h=host.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}
- function animate(){requestAnimationFrame(animate);if(model)model.rotation.y=rotation;renderer.render(scene,camera)}
- try{build();resize();new ResizeObserver(resize).observe(host);animate();window.addEventListener('closet-outfit-change',e=>apply(e.detail));document.getElementById('turnLeft').onclick=()=>rotation-=Math.PI/6;document.getElementById('turnRight').onclick=()=>rotation+=Math.PI/6;document.getElementById('resetView').onclick=()=>rotation=0;document.querySelector('[data-tab=looks]').addEventListener('click',()=>{rotation=0;});host.addEventListener('pointerdown',e=>{drag=true;lastX=e.clientX;host.setPointerCapture(e.pointerId)});host.addEventListener('pointermove',e=>{if(drag){rotation+=(e.clientX-lastX)*.012;lastX=e.clientX}});host.addEventListener('pointerup',()=>drag=false);host.addEventListener('pointercancel',()=>drag=false);window.dispatchEvent(new CustomEvent('closet-outfit-change',{detail:{}}));}catch(err){host.innerHTML='<p style="padding:20px;text-align:center;color:#7b849b">Não foi possível carregar o provador 3D neste navegador. Verifique a conexão e recarregue.</p>';console.error(err)}
-}
-</script>
+
 </body></html>
