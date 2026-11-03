@@ -67,7 +67,7 @@ button{cursor:pointer;border:0;border-radius:12px;padding:11px 15px;font-weight:
 .extra-slot img{display:none;max-width:100%;width:100%;height:75px;object-fit:contain;mix-blend-mode:multiply}
 .extra-pics{display:flex;width:100%;justify-content:space-around;align-items:center}.extra-pics img{width:48%;}
 
-.outfit-top{position:relative}.outfit-top #previewTop{position:relative;z-index:1}.outfit-top .preview-tie-overlay{position:absolute;z-index:2;left:50%;top:28px;transform:translateX(-50%);width:24%;height:125px;object-fit:contain;pointer-events:none;mix-blend-mode:multiply}
+.outfit-top{position:relative;isolation:isolate}.outfit-top #previewTop{position:relative;z-index:1}.outfit-top #previewTie.preview-tie-overlay{position:absolute!important;display:none;z-index:5;left:50%;top:38px;transform:translateX(-50%);width:38%!important;height:138px!important;max-width:150px;object-fit:contain;pointer-events:none;mix-blend-mode:multiply}.outfit-top #previewTie.preview-tie-overlay[src]{display:block}
 </style>
 </head>
 <body>
@@ -86,7 +86,7 @@ button{cursor:pointer;border:0;border-radius:12px;padding:11px 15px;font-weight:
 <div class="panel">
 <div class="field"><label>Nome do look (opcional)</label><input id="lookName" placeholder="Ex.: Casual de sábado"></div>
 <div class="row"><div class="field"><label>Parte de cima</label><select id="top"><option value="">Selecionar</option></select></div><div class="field"><label>Parte de baixo</label><select id="bottom"><option value="">Selecionar</option></select></div></div>
-<div class="row"><div class="field"><label>Gravata para a camisa (opcional)</label><select id="tie"><option value="">Sem gravata</option></select></div><div class="field"><label>Calçado</label><select id="shoe"><option value="">Selecionar</option></select></div></div>
+<div class="row"><div class="field"><label>Gravata sobre a camisa (opcional)</label><select id="tie"><option value="">Sem gravata</option></select></div><div class="field"><label>Calçado</label><select id="shoe"><option value="">Selecionar</option></select></div></div>
 <div class="field"><label>Cinto (opcional)</label><select id="belt"><option value="">Sem cinto</option></select></div>
 <button class="primary" id="saveLook" style="width:100%">♡ Salvar combinação</button>
 </div>
