@@ -141,13 +141,13 @@ if(host){
  const torso=new THREE.Mesh(new THREE.CapsuleGeometry(.48,.72,8,24),bodyMat);torso.scale.set(1.05,1,.62);torso.position.y=.66;model.add(torso);
  limb(model,[-.48,1.0,0],[-.72,-.05,0],.16,.12,bodyMat);limb(model,[.48,1.0,0],[.72,-.05,0],.16,.12,bodyMat);
  limb(model,[-.24,.0,0],[-.27,-1.48,0],.22,.13,bodyMat);limb(model,[.24,.0,0],[.27,-1.48,0],.22,.13,bodyMat);
- capsule(model,.16,.34,shoeMat,[-.27,-1.78,.12],[1.25,.55,1.8]);capsule(model,.16,.34,shoeMat,[.27,-1.78,.12],[1.25,.55,1.8]);
+ shoeL=capsule(model,.16,.34,shoeMat,[-.27,-1.78,.12],[1.25,.55,1.8]);shoeR=capsule(model,.16,.34,shoeMat,[.27,-1.78,.12],[1.25,.55,1.8]);
  shirt=new THREE.Mesh(new THREE.CapsuleGeometry(.49,.7,8,24),shirtMat);shirt.scale.set(1.08,1,.66);shirt.position.y=.66;model.add(shirt);
  const sleeve1=limb(model,[-.48,1.0,0],[-.72,-.05,0],.175,.135,shirtMat),sleeve2=limb(model,[.48,1.0,0],[.72,-.05,0],.175,.135,shirtMat);
  pants=new THREE.Group();model.add(pants);const leg1=new THREE.Mesh(new THREE.CylinderGeometry(.13,.105,1.53,20),pantsMat);leg1.position.set(-.27,-.76,0);pants.add(leg1);const leg2=leg1.clone();leg2.position.x=.27;pants.add(leg2);const waist=new THREE.Mesh(new THREE.CylinderGeometry(.34,.36,.36,24),pantsMat);waist.position.y=.0;pants.add(waist);
  belt=new THREE.Mesh(new THREE.TorusGeometry(.345,.035,8,40),accessoryMat);belt.rotation.x=Math.PI/2;belt.position.y=.12;model.add(belt);
  tie=new THREE.Mesh(new THREE.ConeGeometry(.09,.72,4),accessoryMat);tie.position.set(0,.65,.32);tie.rotation.x=Math.PI;model.add(tie);
- shoeL=model.children[model.children.length-2];shoeR=model.children[model.children.length-1];
+ // footwear references were assigned when the shoes were created.
  model.position.y=.05;
  }
  function colorFor(item,fallback){if(!item)return fallback;const c=(item.color||item.name||'').toLowerCase();const map=[['preto','#20232b'],['black','#20232b'],['branco','#f2f2ee'],['white','#f2f2ee'],['azul','#254c89'],['marinho','#17284c'],['cinza','#777d89'],['grafite','#424750'],['bege','#c6ad8a'],['caqui','#9b916c'],['marrom','#68442f'],['caramelo','#a76d3d'],['vermelho','#a72f3c'],['vinho','#65263b'],['rosa','#d58da4'],['verde','#42664c'],['amarelo','#d2ad36'],['roxo','#76519a'],['laranja','#d17a36']];for(const [k,v] of map)if(c.includes(k))return v;return fallback}
