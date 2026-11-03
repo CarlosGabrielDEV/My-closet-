@@ -142,11 +142,11 @@ if(host){
  limb(model,[-.48,1.0,0],[-.72,-.05,0],.16,.12,bodyMat);limb(model,[.48,1.0,0],[.72,-.05,0],.16,.12,bodyMat);
  limb(model,[-.24,.0,0],[-.27,-1.48,0],.22,.13,bodyMat);limb(model,[.24,.0,0],[.27,-1.48,0],.22,.13,bodyMat);
  shoeL=capsule(model,.16,.34,shoeMat,[-.27,-1.78,.12],[1.25,.55,1.8]);shoeR=capsule(model,.16,.34,shoeMat,[.27,-1.78,.12],[1.25,.55,1.8]);
- shirt=new THREE.Mesh(new THREE.CapsuleGeometry(.49,.7,8,24),shirtMat);shirt.scale.set(1.08,1,.66);shirt.position.y=.66;model.add(shirt);
- const sleeve1=limb(model,[-.48,1.0,0],[-.72,-.05,0],.145,.105,shirtMat),sleeve2=limb(model,[.48,1.0,0],[.72,-.05,0],.145,.105,shirtMat);
- pants=new THREE.Group();model.add(pants);const leg1=new THREE.Mesh(new THREE.CylinderGeometry(.16,.105,1.62,24),pantsMat);leg1.position.set(-.27,-.78,.025);pants.add(leg1);const leg2=leg1.clone();leg2.position.x=.27;pants.add(leg2);const waist=new THREE.Mesh(new THREE.CylinderGeometry(.37,.38,.34,24),pantsMat);waist.position.y=.0;pants.add(waist);
- belt=new THREE.Mesh(new THREE.TorusGeometry(.345,.035,8,40),accessoryMat);belt.rotation.x=Math.PI/2;belt.position.y=.12;model.add(belt);
- tie=new THREE.Mesh(new THREE.ConeGeometry(.09,.72,4),accessoryMat);tie.position.set(0,.65,.32);tie.rotation.x=Math.PI;model.add(tie);
+ shirt=new THREE.Mesh(new THREE.CapsuleGeometry(.49,.7,8,24),shirtMat);shirt.scale.set(1.08,1,.66);shirt.position.y=.79;model.add(shirt);
+ const sleeve1=limb(model,[-.48,1.08,0],[-.72,.08,0],.145,.105,shirtMat),sleeve2=limb(model,[.48,1.08,0],[.72,.08,0],.145,.105,shirtMat);
+ pants=new THREE.Group();model.add(pants);const leg1=new THREE.Mesh(new THREE.CylinderGeometry(.16,.105,1.62,24),pantsMat);leg1.position.set(-.27,-.78,.025);pants.add(leg1);const leg2=leg1.clone();leg2.position.x=.27;pants.add(leg2);const waist=new THREE.Mesh(new THREE.CylinderGeometry(.37,.38,.34,24),pantsMat);waist.position.y=-.08;pants.add(waist);
+ belt=new THREE.Mesh(new THREE.TorusGeometry(.345,.035,8,40),accessoryMat);belt.rotation.x=Math.PI/2;belt.position.y=-.025;model.add(belt);
+ tie=new THREE.Mesh(new THREE.ConeGeometry(.09,.72,4),accessoryMat);tie.position.set(0,.72,.32);tie.rotation.x=Math.PI;model.add(tie);
  // footwear references were assigned when the shoes were created.
  model.position.y=.05;
  }
