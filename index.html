@@ -51,6 +51,8 @@ button{cursor:pointer;border:0;border-radius:12px;padding:11px 15px;font-weight:
 .fit-empty{position:absolute;bottom:13px;background:#ffffffdf;color:#737d98;padding:7px 11px;border-radius:20px;font-size:11px;z-index:6}
 .fit-tip{font-size:11px;color:#777f96;margin:8px 2px 0;line-height:1.4}
 @media(max-width:390px){.fitting-stage{height:420px}.man-torso{width:139px}.man-legs{width:116px}.fit-top{width:63%}.fit-bottom{width:58%}}
+
+#threeStage{position:absolute;inset:0;width:100%;height:100%;touch-action:pan-y}#threeStage canvas{display:block;width:100%;height:100%;touch-action:pan-y}.fit-controls{display:flex;justify-content:center;gap:8px;margin-top:10px;flex-wrap:wrap}.fit-controls button{padding:9px 13px}
 </style>
 </head>
 <body>
@@ -65,7 +67,7 @@ button{cursor:pointer;border:0;border-radius:12px;padding:11px 15px;font-weight:
 <div class="empty" id="empty"><div class="emoji">👕</div><strong>Seu closet começa aqui</strong><p>Adicione fotos da galeria ou tire uma foto.</p><button class="primary" id="emptyAdd">＋ Adicionar primeira peça</button></div>
 </section>
 <section id="looksSection" hidden>
-<h2>Montar combinação</h2><p class="hint">Escolha peças do seu guarda-roupa.</p><div class="fitting-panel"><div class="fitting-head"><strong>🧍 Provador 3D</strong><span class="detail">Prévia automática</span></div><div class="fitting-stage"><div class="mannequin"><div class="man-body"><div class="man-head"></div><div class="man-neck"></div><div class="man-arm left"></div><div class="man-arm right"></div><div class="man-torso"></div><div class="man-legs"><i></i><i></i></div><div class="man-feet"><i></i><i></i></div></div></div><img id="fitTop" class="fit-piece fit-top" alt="Parte de cima"><img id="fitBottom" class="fit-piece fit-bottom" alt="Parte de baixo"><img id="fitShoe" class="fit-piece fit-shoe" alt="Calçado"><img id="fitTie" class="fit-piece fit-tie" alt="Gravata"><img id="fitBelt" class="fit-piece fit-belt" alt="Cinto"><div id="fitEmpty" class="fit-empty">Selecione suas peças para vestir o manequim</div></div><p class="fit-caption">Prévia ilustrativa: as peças são posicionadas automaticamente por categoria.</p><p class="fit-tip">Dica: fotos das roupas recortadas, sem fundo e de frente, produzem um encaixe visual melhor. O provador ainda não faz modelagem 3D real do tecido.</p></div>
+<h2>Montar combinação</h2><p class="hint">Escolha peças do seu guarda-roupa.</p><div class="fitting-panel"><div class="fitting-head"><strong>🧍 Provador 3D</strong><span class="detail">Prévia automática</span></div><div class="fitting-stage" id="fittingStage"><div id="threeStage" aria-label="Manequim 3D interativo"></div><div id="fitEmpty" class="fit-empty">Selecione suas peças para vestir o manequim</div></div><div class="fit-controls"><button type="button" id="turnLeft" class="secondary">↶ Girar</button><button type="button" id="turnRight" class="secondary">Girar ↷</button><button type="button" id="resetView" class="plain">Frente</button></div><p class="fit-caption">Manequim 3D interativo. Arraste para girar e use os botões para mudar o ângulo.</p><p class="fit-tip">As roupas aparecem como peças 3D coloridas conforme a cor cadastrada. O encaixe de fotos reais sobre o corpo exige recorte automático das imagens, uma etapa futura.</p></div>
 <div class="panel">
 <div class="field"><label>Nome do look (opcional)</label><input id="lookName" placeholder="Ex.: Casual de sábado"></div>
 <div class="row"><div class="field"><label>Parte de cima</label><select id="top"><option value="">Selecionar</option></select></div><div class="field"><label>Parte de baixo</label><select id="bottom"><option value="">Selecionar</option></select></div></div>
@@ -105,7 +107,7 @@ $('saveItems').onclick=async()=>{if(!pending.length)return;const cat=$('newCateg
 $('filter').onchange=render;
 function fillLookSelects(){const groups={top:['Camisa','Camiseta','Jaqueta'],bottom:['Calça','Bermuda'],shoe:['Sapato','Tênis'],tie:['Gravata'],belt:['Cinto']};Object.entries(groups).forEach(([id,cats])=>{const el=$(id),old=el.value,first=id==='tie'?'Sem gravata':id==='belt'?'Sem cinto':'Selecionar';el.innerHTML='<option value="">'+first+'</option>'+clothes.filter(x=>cats.includes(x.cat)).map(x=>'<option value="'+x.id+'">'+esc(x.name)+(x.color?' · '+esc(x.color):'')+'</option>').join('');el.value=old})}
 $('saveLook').onclick=async()=>{const ids=['top','bottom','shoe','tie','belt'].map(id=>$(id).value).filter(Boolean);const valid=(id,cats)=>ids.some(k=>clothes.some(x=>x.id===k&&cats.includes(x.cat)));if(!valid('top',['Camisa','Camiseta','Jaqueta'])||!valid('bottom',['Calça','Bermuda'])||!valid('shoe',['Sapato','Tênis'])){alert('Escolha uma parte de cima, uma parte de baixo e um calçado.');return}looks.unshift({id:Date.now().toString(36),name:$('lookName').value.trim()||'Look '+(looks.length+1),ids});await persist();$('lookName').value='';['top','bottom','shoe','tie','belt'].forEach(id=>$(id).value='');renderLooks()};
-function updateFitting(){const map={top:'fitTop',bottom:'fitBottom',shoe:'fitShoe',tie:'fitTie',belt:'fitBelt'};let count=0;Object.entries(map).forEach(([selectId,imgId])=>{const img=$(imgId),item=clothes.find(x=>x.id===$(selectId).value);if(item){img.src=item.src;img.style.display='block';count++}else{img.removeAttribute('src');img.style.display='none'}});$('fitEmpty').style.display=count?'none':'block'}
+function updateFitting(){const ids=['top','bottom','shoe','tie','belt'];const selected={};ids.forEach(id=>{selected[id]=clothes.find(x=>x.id===$(id).value)||null});const count=Object.values(selected).filter(Boolean).length;$('fitEmpty').style.display=count?'none':'block';window.dispatchEvent(new CustomEvent('closet-outfit-change',{detail:selected}))}
 function renderHome(){$('homePieces').textContent=clothes.length;$('homeLooks').textContent=looks.length;$('homeEvents').textContent=events.length;$('homeCats').textContent=new Set(clothes.map(x=>x.cat)).size;const upcoming=[...events].filter(e=>e.date>=new Date().toISOString().slice(0,10)).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,3);$('homeUpcoming').innerHTML=upcoming.length?upcoming.map(e=>'<div class="event"><div class="date-badge">'+formatDate(e.date)+'</div><strong>'+esc(e.title)+'</strong><div class="detail">'+esc(lookName(e.lookId))+'</div></div>').join(''):'<div class="empty">Nenhum compromisso planejado por enquanto.</div>'}
 function formatDate(d){if(!d)return '';const [y,m,day]=d.split('-');return day+'/'+m+'/'+y}
 function lookName(id){return looks.find(l=>l.id===id)?.name||'Sem look definido'}
@@ -119,5 +121,40 @@ async function deleteLook(id){looks=looks.filter(l=>l.id!==id);await persist();r
 document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>goTab(b.dataset.tab));
 fillCats();updateFitting();load();
 if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(e=>console.log('SW',e)))}
+</script>
+
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js';
+const host=document.getElementById('threeStage');
+if(host){
+ let scene,camera,renderer,model,shirt,pants,tie,belt,shoeL,shoeR,rotation=0,drag=false,lastX=0;
+ const mat=(color,rough=.78)=>new THREE.MeshStandardMaterial({color,roughness:rough,metalness:.02});
+ const skin=mat('#d9c6b5'),shirtMat=mat('#31558f'),pantsMat=mat('#555c6d'),shoeMat=mat('#202536'),accessoryMat=mat('#252a38'),bodyMat=mat('#d9dce5');
+ function capsule(parent,r,len,material,pos,scale){const m=new THREE.Mesh(new THREE.CapsuleGeometry(r,len,6,12),material);m.position.set(...pos);if(scale)m.scale.set(...scale);parent.add(m);return m}
+ function limb(parent,a,b,r1,r2,material){const A=new THREE.Vector3(...a),B=new THREE.Vector3(...b),d=new THREE.Vector3().subVectors(B,A);const m=new THREE.Mesh(new THREE.CylinderGeometry(r2,r1,d.length(),16,1),material);m.position.copy(A).add(B).multiplyScalar(.5);m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());parent.add(m);return m}
+ function build(){scene=new THREE.Scene();scene.background=new THREE.Color('#edf0fa');camera=new THREE.PerspectiveCamera(34,1,.1,100);camera.position.set(0,1.1,7.8);renderer=new THREE.WebGLRenderer({antialias:true,alpha:false});renderer.setPixelRatio(Math.min(devicePixelRatio,1.8));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.shadowMap.enabled=true;host.appendChild(renderer.domElement);scene.add(new THREE.HemisphereLight(0xffffff,0x9aa5c4,2));const key=new THREE.DirectionalLight(0xffffff,2.4);key.position.set(3,5,6);key.castShadow=true;scene.add(key);const fill=new THREE.DirectionalLight(0x9eafff,1.1);fill.position.set(-4,2,-3);scene.add(fill);
+ const floor=new THREE.Mesh(new THREE.CylinderGeometry(1.35,1.35,.12,64),mat('#c9cfea'));floor.position.y=-2.05;floor.receiveShadow=true;scene.add(floor);const ring=new THREE.Mesh(new THREE.TorusGeometry(1.27,.025,8,80),new THREE.MeshStandardMaterial({color:'#8b5cf6',emissive:'#4b238f',emissiveIntensity:.45}));ring.rotation.x=Math.PI/2;ring.position.y=-1.97;scene.add(ring);
+ model=new THREE.Group();scene.add(model);
+ // Proportioned, sculpted mannequin body.
+ const head=new THREE.Mesh(new THREE.SphereGeometry(.34,32,24),skin);head.scale.set(.82,1.13,.86);head.position.y=1.72;model.add(head);
+ capsule(model,.13,.22,skin,[0,1.32,0],[1,1,1]);
+ const torso=new THREE.Mesh(new THREE.CapsuleGeometry(.48,.72,8,24),bodyMat);torso.scale.set(1.05,1,.62);torso.position.y=.66;model.add(torso);
+ limb(model,[-.48,1.0,0],[-.72,-.05,0],.16,.12,bodyMat);limb(model,[.48,1.0,0],[.72,-.05,0],.16,.12,bodyMat);
+ limb(model,[-.24,.0,0],[-.27,-1.48,0],.22,.13,bodyMat);limb(model,[.24,.0,0],[.27,-1.48,0],.22,.13,bodyMat);
+ capsule(model,.16,.34,shoeMat,[-.27,-1.78,.12],[1.25,.55,1.8]);capsule(model,.16,.34,shoeMat,[.27,-1.78,.12],[1.25,.55,1.8]);
+ shirt=new THREE.Mesh(new THREE.CapsuleGeometry(.49,.7,8,24),shirtMat);shirt.scale.set(1.08,1,.66);shirt.position.y=.66;model.add(shirt);
+ const sleeve1=limb(model,[-.48,1.0,0],[-.72,-.05,0],.175,.135,shirtMat),sleeve2=limb(model,[.48,1.0,0],[.72,-.05,0],.175,.135,shirtMat);
+ pants=new THREE.Group();model.add(pants);const leg1=new THREE.Mesh(new THREE.CylinderGeometry(.13,.105,1.53,20),pantsMat);leg1.position.set(-.27,-.76,0);pants.add(leg1);const leg2=leg1.clone();leg2.position.x=.27;pants.add(leg2);const waist=new THREE.Mesh(new THREE.CylinderGeometry(.34,.36,.36,24),pantsMat);waist.position.y=.0;pants.add(waist);
+ belt=new THREE.Mesh(new THREE.TorusGeometry(.345,.035,8,40),accessoryMat);belt.rotation.x=Math.PI/2;belt.position.y=.12;model.add(belt);
+ tie=new THREE.Mesh(new THREE.ConeGeometry(.09,.72,4),accessoryMat);tie.position.set(0,.65,.32);tie.rotation.x=Math.PI;model.add(tie);
+ shoeL=model.children[model.children.length-2];shoeR=model.children[model.children.length-1];
+ model.position.y=.05;
+ }
+ function colorFor(item,fallback){if(!item)return fallback;const c=(item.color||item.name||'').toLowerCase();const map=[['preto','#20232b'],['black','#20232b'],['branco','#f2f2ee'],['white','#f2f2ee'],['azul','#254c89'],['marinho','#17284c'],['cinza','#777d89'],['grafite','#424750'],['bege','#c6ad8a'],['caqui','#9b916c'],['marrom','#68442f'],['caramelo','#a76d3d'],['vermelho','#a72f3c'],['vinho','#65263b'],['rosa','#d58da4'],['verde','#42664c'],['amarelo','#d2ad36'],['roxo','#76519a'],['laranja','#d17a36']];for(const [k,v] of map)if(c.includes(k))return v;return fallback}
+ function apply(data){if(!model)return;shirt.material.color.set(colorFor(data.top,'#31558f'));pants.children.forEach(o=>{if(o.material)o.material.color.set(colorFor(data.bottom,'#555c6d'))});belt.material.color.set(colorFor(data.belt,'#252a38'));tie.material.color.set(colorFor(data.tie,'#8055d9'));const shoeColor=colorFor(data.shoe,'#202536');shoeL.material.color.set(shoeColor);shoeR.material.color.set(shoeColor)}
+ function resize(){if(!renderer)return;const w=host.clientWidth,h=host.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}
+ function animate(){requestAnimationFrame(animate);if(model)model.rotation.y=rotation;renderer.render(scene,camera)}
+ try{build();resize();new ResizeObserver(resize).observe(host);animate();window.addEventListener('closet-outfit-change',e=>apply(e.detail));document.getElementById('turnLeft').onclick=()=>rotation-=Math.PI/6;document.getElementById('turnRight').onclick=()=>rotation+=Math.PI/6;document.getElementById('resetView').onclick=()=>rotation=0;host.addEventListener('pointerdown',e=>{drag=true;lastX=e.clientX;host.setPointerCapture(e.pointerId)});host.addEventListener('pointermove',e=>{if(drag){rotation+=(e.clientX-lastX)*.012;lastX=e.clientX}});host.addEventListener('pointerup',()=>drag=false);host.addEventListener('pointercancel',()=>drag=false);window.dispatchEvent(new CustomEvent('closet-outfit-change',{detail:{}}));}catch(err){host.innerHTML='<p style="padding:20px;text-align:center;color:#7b849b">Não foi possível carregar o provador 3D neste navegador. Verifique a conexão e recarregue.</p>';console.error(err)}
+}
 </script>
 </body></html>
