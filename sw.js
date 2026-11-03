@@ -1,4 +1,4 @@
-const CACHE = "meu-closet-v4";
+const CACHE = "meu-closet-v5";
 const FILES = ["./", "./index.html", "./manifest.json", "./icon.svg"];
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(FILES)));
